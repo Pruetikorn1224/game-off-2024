@@ -1,6 +1,8 @@
 # Game Off 2024 (Change Later!)
 This is a repository of game developed for Game Off 2024 competition.
 
+Unity Version: 6000.0.25f1
+
 
 ## Links
 - [External Files](https://drive.google.com/drive/folders/15tjAjJ1KJ42On3D3lmhRGx0jCtutG88B?usp=sharing)
