@@ -14,7 +14,7 @@ public class CameraFollow : MonoBehaviour
         offset = cam.transform.position - player.position;
     }
 
-    void FixedUpdate()
+    void LateUpdate()
     {
         Vector3 playerViewportPos = cam.WorldToViewportPoint(player.position);
 
@@ -24,7 +24,7 @@ public class CameraFollow : MonoBehaviour
         if (isNearHorizontalEdge || isNearVerticalEdge)
         {
             Vector3 targetPosition = player.position + offset;
-            targetPosition.z = cam.transform.position.z;
+            targetPosition.y = cam.transform.position.y;
             cam.transform.position = Vector3.Lerp(cam.transform.position, targetPosition, Time.deltaTime * 5f);
         }
     }

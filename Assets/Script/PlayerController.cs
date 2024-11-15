@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -9,6 +11,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("Camera Setting")]
     public float followThreshold = 1f;
+
+    [Header("Fade Transition")]
+    [SerializeField] Image blackScreenPanel;
+    [SerializeField] float fadeDuration;
 
     private Rigidbody rb;
 
@@ -45,8 +51,7 @@ public class PlayerController : MonoBehaviour
                 GameObject teleportTo = door.GetComponent<DoorTeleport>().doorToWarp;
                 Vector3 teleportOffset = door.GetComponent<DoorTeleport>().warpOffset;
 
-                transform.position = teleportTo.transform.position + teleportOffset;
-                cam.transform.position = transform.position + offset;
+                StartCoroutine(FadeAndTeleport(teleportTo.transform.position, teleportOffset));
             }
             Debug.Log("2");
         }
@@ -69,24 +74,6 @@ public class PlayerController : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * playerRotation);
         }
-
-        // Camera Follow
-        Vector3 playerViewportPos = cam.WorldToViewportPoint(transform.position);
-
-        bool isNearHorizontalEdge = playerViewportPos.x < followThreshold || playerViewportPos.x > 1 - followThreshold;
-        bool isNearVerticalEdge = playerViewportPos.y < followThreshold || playerViewportPos.y > 1 - followThreshold;
-
-        if (isNearHorizontalEdge || isNearVerticalEdge)
-        {
-            Vector3 targetPosition = cam.transform.position;
-            targetPosition.x = transform.position.x + offset.x;
-
-            
-            targetPosition.y = cam.transform.position.y;
-            targetPosition.z = cam.transform.position.z;
-
-            cam.transform.position = Vector3.Lerp(cam.transform.position, targetPosition, Time.deltaTime * 5f);
-        }
     }
     
 
@@ -97,6 +84,46 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
+        }
+    }
+
+    private IEnumerator FadeAndTeleport(Vector3 teleportPosition, Vector3 teleportOffset)
+    {
+        yield return StartCoroutine(FadeToBlack());
+
+        yield return new WaitForSeconds(0.25f);
+
+        transform.position = new Vector3(teleportPosition.x, transform.position.y, teleportPosition.z) + teleportOffset;
+        cam.transform.position = transform.position + offset;
+
+        yield return new WaitForSeconds(0.25f);
+
+        yield return StartCoroutine(FadeToClear());
+    }
+
+    private IEnumerator FadeToBlack()
+    {
+        float elapsed = 0;
+        Color color = blackScreenPanel.color;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            color.a = Mathf.Clamp01(elapsed / fadeDuration);
+            blackScreenPanel.color = color;
+            yield return null;
+        }
+    }
+
+    private IEnumerator FadeToClear()
+    {
+        float elapsed = 0;
+        Color color = blackScreenPanel.color;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            color.a = Mathf.Clamp01(1 - (elapsed / fadeDuration));
+            blackScreenPanel.color = color;
+            yield return null;
         }
     }
 }
