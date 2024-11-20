@@ -80,7 +80,7 @@ public class PlayerController : MonoBehaviour
     void OnCollisionStay(Collision collision)
     {
         // Stop movement while the player is touching the wall
-        if (collision.gameObject.CompareTag("Wall"))
+        if (collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Item"))
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
